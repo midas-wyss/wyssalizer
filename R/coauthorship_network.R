@@ -21,7 +21,7 @@ num_facs <- nrow(wyss_scholar)
 paper_totals <- vector()
 for (i in seq(1, num_facs)) {
   for (k in seq(1, length(year_span))) {
-    a1 <- tmp$tofilter[which(tmp$wyss_scholar == wyss_scholar$pubmed_search[i] & tmp$year == year_span[k])]
+    a1 <- filtered_papers$tofilter[which(filtered_papers$wyss_scholar == wyss_scholar$pubmed_search[i] & filtered_papers$year == year_span[k])]
     a4 <- tibble::tibble(faculty = wyss_scholar$id[i],
                          type = wyss_scholar$type[i],
                          total_papers = length(a1),
@@ -29,8 +29,17 @@ for (i in seq(1, num_facs)) {
     paper_totals <- dplyr::bind_rows(paper_totals, a4)
   }
 }
-paper_totals <- paper_totals %>% 
-  dplyr::filter(., !is.na(faculty))
+paper_totals <- paper_totals
+
+paper_totals %>% 
+  dplyr::filter(., !is.na(faculty), total_papers < 200) %>% 
+  ggplot() + 
+  geom_tile(aes(x = as.factor(year), y = faculty, fill = total_papers), color = "black") + 
+  scale_fill_viridis_c() + 
+  facet_grid(type ~ ., scales = "free_y") +
+  # coord_polar() +
+  theme_minimal() + 
+  theme(panel.grid = element_blank())
 
 # build pairs
 # year_span <- seq(2006, 2019, by = 1)
