@@ -7,11 +7,51 @@
 load("data/2019-11-10_wyss_papers.RData")
 
 filtered_papers <- all_papers %>% 
+  dplyr::mutate(., journal = tolower(journal)) %>%
   dplyr::filter(., year >= 2006, !is.na(year), journal != "") %>%
+  dplyr::filter(., grepl("^[a-z]", journal)) %>%
+  dplyr::filter(., !grepl("altex", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("abstracts", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("meeting", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("^basic books$", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("^available", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("^b$", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("^bt news$", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("^c$", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("^cleo:", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("copper-vapor", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("chsl", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("^ds$", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("^ep patent", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("^f$", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("^harvard", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("univ.", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("university", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("livermore", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("mit press", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("proc.$", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("prometheus", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("sandia", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("siggraph", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("sigma", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("^small$", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("nauki", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("^tc$", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("^the$", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("briefing note", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("^ucl ", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("usdoe", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("wiley", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("workshop", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("^wo patent", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("^wo$", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("postgraduate", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("pqdt", journal, ignore.case = TRUE)) %>%
+  dplyr::filter(., !grepl("^oak ridge", journal, ignore.case = TRUE)) %>%
   dplyr::filter(., !grepl("US Patent", tofilter, ignore.case = TRUE)) %>%
   dplyr::filter(., !grepl("Supplement", tofilter, ignore.case = TRUE)) %>%
   dplyr::filter(., !grepl("Conference", tofilter, ignore.case = TRUE)) %>%
-  dplyr::filter(., !grepl("Abstract", tofilter, ignore.case = TRUE))
+  dplyr::filter(., !grepl("Abstract", tofilter, ignore.case = TRUE)) 
   
 
 
@@ -104,27 +144,27 @@ N <- dplyr::bind_rows(N)
 
 ##### NETWORK WITH OBJECT PERMANENCE #####
 # a paper gets carried over from the previous years (a cumulative type of approach)
-year_span <- seq(2006, 2019)
-tmp2 <- wyss_scholar %>% 
-  dplyr::mutate(., vid = seq(1, nrow(wyss_scholar)))
-PN <- vector(mode = "list")
-
-for (i in seq(1, length(year_span))) {
-  b1 <- filtered_papers[filtered_papers$year == year_span[i], ]
-  b2 <- unique(b1$tofilter)
-  for (j in seq(1, length(b2))) {
-    b3 <- which(b1$tofilter == b2[j])
-    b4 <- unique(b1$wyss_scholar[b3])
-    b5 <- tmp2$vid[which(tmp2$pubmed_search %in% b4)] # vertex ids
-    if (length(b4) > 1) {
-      b6 <- t(combn(b5, m = 2))
-      PN[[j]] <- tibble::tibble(author1_vid = rep(b6[, 1], length(seq(year_span[i], tail(year_span, n = 1)))),
-                     author2_vid = rep(b6[, 2], length(seq(year_span[i], tail(year_span, n = 1)))), 
-                     year = as.vector(sapply(seq(year_span[i], tail(year_span, n = 1)), function(x) rep(x, nrow(b6)))))
-    }
-  }
-}
-PN <- dplyr::bind_rows(PN) %>% dplyr::distinct()
+# year_span <- seq(2006, 2019)
+# tmp2 <- wyss_scholar %>% 
+#   dplyr::mutate(., vid = seq(1, nrow(wyss_scholar)))
+# PN <- vector(mode = "list")
+# 
+# for (i in seq(1, length(year_span))) {
+#   b1 <- filtered_papers[filtered_papers$year == year_span[i], ]
+#   b2 <- unique(b1$tofilter)
+#   for (j in seq(1, length(b2))) {
+#     b3 <- which(b1$tofilter == b2[j])
+#     b4 <- unique(b1$wyss_scholar[b3])
+#     b5 <- tmp2$vid[which(tmp2$pubmed_search %in% b4)] # vertex ids
+#     if (length(b4) > 1) {
+#       b6 <- t(combn(b5, m = 2))
+#       PN[[j]] <- tibble::tibble(author1_vid = rep(b6[, 1], length(seq(year_span[i], tail(year_span, n = 1)))),
+#                      author2_vid = rep(b6[, 2], length(seq(year_span[i], tail(year_span, n = 1)))), 
+#                      year = as.vector(sapply(seq(year_span[i], tail(year_span, n = 1)), function(x) rep(x, nrow(b6)))))
+#     }
+#   }
+# }
+# PN <- dplyr::bind_rows(PN) %>% dplyr::distinct()
 
 
 
