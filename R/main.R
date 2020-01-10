@@ -9,10 +9,10 @@ library(ggraph)
 library(gganimate)
 # library(ggwordcloud)
 library(readxl)
-library(scholar) # <-- make sure this is the one on github, not on CRAN
+library(scholar) # <-- make sure this is the one on github, not on CRAN (devtools::install_github("jkeirstead/scholar"))
 library(igraph)
 library(plotly)
-library(ggwordcloud) # <-- from lepennec github repo
+library(ggwordcloud) # <-- from lepennec github repo (devtools::install_github("lepennec/ggwordcloud"))
 library(RColorBrewer)
 library(viridis)
 library(wordcloud2)
